@@ -1,0 +1,125 @@
+services:
+  # --- NODO 1 (VALIDATORE) ---
+  postgres1:
+    image: postgres:16-alpine
+    container_name: blockchain-postgres-1
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_1:/var/lib/postgresql/data
+    networks:
+      - blockchain-network
+    restart: unless-stopped
+
+  node1:
+    build: ./backend
+    container_name: blockchain-node-1
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=4001
+      - P2P_PORT=6001
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres1:5432/${POSTGRES_DB}
+      - PEERS=ws://node2:6002,ws://node3:6003
+      - DIFFICULTY=${DIFFICULTY:-4}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "4001:4001" # API
+      - "6001:6001" # P2P
+    networks:
+      - blockchain-network
+    depends_on:
+      - postgres1
+    restart: unless-stopped
+
+  # --- NODO 2 (VALIDATORE) ---
+  postgres2:
+    image: postgres:16-alpine
+    container_name: blockchain-postgres-2
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_2:/var/lib/postgresql/data
+    networks:
+      - blockchain-network
+    restart: unless-stopped
+
+  node2:
+    build: ./backend
+    container_name: blockchain-node-2
+    environment:
+      - NODE_ENV=development
+      - PORT=4002 # Porta API interna
+      - P2P_PORT=6002
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres2:5432/${POSTGRES_DB}
+      - PEERS=ws://node1:6001,ws://node3:6003
+      - DIFFICULTY=${DIFFICULTY:-4}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "4002:4002"
+      - "6002:6002"
+    networks:
+      - blockchain-network
+    depends_on:
+      - postgres2
+    restart: unless-stopped
+
+  # --- NODO 3 (VALIDATORE) ---
+  postgres3:
+    image: postgres:16-alpine
+    container_name: blockchain-postgres-3
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_3:/var/lib/postgresql/data
+    networks:
+      - blockchain-network
+    restart: unless-stopped
+
+  node3:
+    build: ./backend
+    container_name: blockchain-node-3
+    environment:
+      - NODE_ENV=development
+      - PORT=4003 # Porta API interna
+      - P2P_PORT=6003
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres3:5432/${POSTGRES_DB}
+      - PEERS=ws://node1:6001,ws://node2:6002
+      - DIFFICULTY=${DIFFICULTY:-4}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "4003:4003"
+      - "6003:6003"
+    networks:
+      - blockchain-network
+    depends_on:
+      - postgres3
+    restart: unless-stopped
+
+  # --- FRONTEND (si collega a un nodo, es. node1) ---
+  frontend:
+    build: ./frontend
+    container_name: blockchain-frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:4001 # Si collega all'API del nodo 1
+    ports:
+      - "5173:5173"
+    networks:
+      - blockchain-network
+    depends_on:
+      - node1
+    restart: unless-stopped
+
+volumes:
+  postgres_data_1:
+  postgres_data_2:
+  postgres_data_3:
+
+networks:
+  blockchain-network:
+    driver: bridge

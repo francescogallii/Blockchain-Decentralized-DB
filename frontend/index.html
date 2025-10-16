@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/blockchain-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sistema blockchain-database per il trattamento sicuro di dati sensibili con crittografia RSA/AES" />
+    <meta name="keywords" content="blockchain, database, crittografia, RSA, AES, dati sensibili, sicurezza" />
+    <meta name="author" content="Blockchain Database System" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Blockchain Database System" />
+    <meta property="og:description" content="Sistema sicuro per il trattamento di dati sensibili utilizzando tecnologia blockchain e crittografia avanzata" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Blockchain Database System" />
+    <meta property="twitter:description" content="Sistema sicuro per il trattamento di dati sensibili utilizzando tecnologia blockchain e crittografia avanzata" />
+    <meta property="twitter:image" content="/og-image.png" />
+    
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:4001 ws://localhost:*; worker-src 'self' blob:;" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="http://localhost:4001" />
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <title>Blockchain Database System - Gestione Sicura Dati Sensibili</title>
+    
+    <!-- Inline critical CSS for faster loading -->
+    <style>
+      /* Critical CSS for above-the-fold content */
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f9fafb;
+        color: #111827;
+      }
+      
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #f9fafb;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        margin-top: 16px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #6b7280;
+      }
+      
+      /* Hide loading screen when app is ready */
+      .app-ready .loading-screen {
+        display: none;
+      }
+      
+      /* Ensure smooth transitions */
+      * {
+        box-sizing: border-box;
+      }
+      
+      #root {
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <div style="width: 64px; height: 64px; background-color: #3b82f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+          <svg width="32" height="32" fill="white" viewBox="0 0 24 24">
+            <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.4 7 14.8 8.6 14.8 10V11.5C15.4 11.5 16 12.1 16 12.7V16.3C16 16.9 15.4 17.5 14.8 17.5H9.2C8.6 17.5 8 16.9 8 16.3V12.7C8 12.1 8.6 11.5 9.2 11.5V10C9.2 8.6 10.6 7 12 7M12 8.2C11.2 8.2 10.4 8.7 10.4 10V11.5H13.6V10C13.6 8.7 12.8 8.2 12 8.2Z"/>
+          </svg>
+        </div>
+        <h1 style="font-size: 24px; font-weight: 700; color: #111827; margin: 0 0 8px 0;">
+          Blockchain Database System
+        </h1>
+        <p style="font-size: 16px; color: #6b7280; margin: 0;">
+          Sistema Sicuro per Dati Sensibili
+        </p>
+      </div>
+      
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Caricamento applicazione...</div>
+      
+      <div style="margin-top: 48px; text-align: center; color: #9ca3af; font-size: 14px;">
+        <p style="margin: 0 0 8px 0;">Tecnologie utilizzate:</p>
+        <p style="margin: 0; font-weight: 500;">React • Node.js • PostgreSQL • RSA/AES Encryption</p>
+      </div>
+    </div>
+
+    <!-- Main Application Root -->
+    <div id="root"></div>
+
+    <!-- Error Fallback (shown if JavaScript fails to load) -->
+    <noscript>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 32px;">
+        <div style="background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; padding: 24px; max-width: 480px;">
+          <div style="color: #dc2626; font-size: 48px; margin-bottom: 16px;">⚠️</div>
+          <h1 style="color: #991b1b; font-size: 24px; margin: 0 0 16px 0; font-weight: 600;">
+            JavaScript Richiesto
+          </h1>
+          <p style="color: #7f1d1d; margin: 0 0 16px 0; line-height: 1.5;">
+            Questa applicazione richiede JavaScript per funzionare correttamente. 
+            Le funzionalità di crittografia e blockchain dipendono dalle API Web moderne.
+          </p>
+          <p style="color: #7f1d1d; margin: 0; font-size: 14px;">
+            Abilita JavaScript nel tuo browser e ricarica la pagina.
+          </p>
+        </div>
+      </div>
+    </noscript>
+
+    <!-- Module Script -->
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Remove loading screen when app is ready -->
+    <script>
+      // Remove loading screen after a timeout to prevent it from staying forever
+      setTimeout(() => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transition = 'opacity 0.3s ease-out';
+          setTimeout(() => {
+            loadingScreen.remove();
+          }, 300);
+        }
+      }, 5000); // 5 second fallback
+      
+      // Browser compatibility check
+      if (!window.crypto || !window.crypto.subtle) {
+        document.body.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 32px;">
+            <div style="background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; padding: 24px; max-width: 520px;">
+              <div style="color: #dc2626; font-size: 48px; margin-bottom: 16px;">🔒</div>
+              <h1 style="color: #991b1b; font-size: 24px; margin: 0 0 16px 0; font-weight: 600;">
+                Browser Non Compatibile
+              </h1>
+              <p style="color: #7f1d1d; margin: 0 0 16px 0; line-height: 1.5;">
+                Questa applicazione richiede un browser moderno con supporto per Web Crypto API 
+                per garantire la sicurezza delle operazioni crittografiche.
+              </p>
+              <p style="color: #7f1d1d; margin: 0; font-size: 14px;">
+                Aggiorna il tuo browser o utilizza Chrome, Firefox, Safari o Edge aggiornati.
+              </p>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Performance monitoring
+      window.addEventListener('load', () => {
+        if ('performance' in window) {
+          const perfData = performance.getEntriesByType('navigation')[0];
+          console.log('📊 Performance Metrics:', {
+            'Page Load Time': Math.round(perfData.loadEventEnd - perfData.fetchStart) + 'ms',
+            'DOM Content Loaded': Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart) + 'ms',
+            'First Paint': Math.round(performance.getEntriesByType('paint')[0]?.startTime || 0) + 'ms'
+          });
+        }
+      });
+    </script>
+    
+    <!-- Service Worker Registration (for caching in production) -->
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registered:', registration);
+            })
+            .catch((error) => {
+              console.log('❌ Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
