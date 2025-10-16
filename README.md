@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-# Blockchain-Decentralized-DB
-This project, developed as part of a Bachelor’s degree thesis, demonstrates the integration of Blockchain technology into a relational database for managing sensitive data. The project includes PostgreSQL code and features integration with a website built using Node.js and React. 
-=======
->>>>>>> 2413924 (Primo commit)
+
 Blockchain Database System ⛓️🔐
 
 Un sistema avanzato per il trattamento sicuro di dati sensibili utilizzando una blockchain privata basata su PostgreSQL, con crittografia end-to-end RSA/AES e un'interfaccia web moderna.
@@ -151,7 +145,3 @@ Bash
 docker image prune -a
 
 A questo punto, il tuo sistema è tornato allo stato iniziale, come se non avessi mai eseguito il progetto. Puoi ripartire dal Passo 3 della guida all'installazione per ricreare tutto da zero.
-<<<<<<< HEAD
-=======
->>>>>>> c559f5c (Primo commit)
->>>>>>> 2413924 (Primo commit)
