@@ -1,5 +1,25 @@
 services:
-  # --- NODO 1 (VALIDATORE) ---
+  # --- NGINX REVERSE PROXY & ENTRYPOINT ---
+  nginx:
+    image: nginx:stable-alpine
+    container_name: blockchain-nginx
+    ports:
+      - "80:80"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - blockchain-network
+    depends_on:
+      node1:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    restart: always
+
+  # --- NODO 1 (API & P2P HUB) ---
   postgres1:
     image: postgres:16-alpine
     container_name: blockchain-postgres-1
@@ -12,26 +32,39 @@ services:
     networks:
       - blockchain-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   node1:
     build: ./backend
     container_name: blockchain-node-1
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
       - PORT=4001
       - P2P_PORT=6001
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres1:5432/${POSTGRES_DB}
       - PEERS=ws://node2:6002,ws://node3:6003
+      - NODE_ENV=${NODE_ENV:-development}
       - DIFFICULTY=${DIFFICULTY:-4}
       - JWT_SECRET=${JWT_SECRET}
-    ports:
-      - "4001:4001" # API
-      - "6001:6001" # P2P
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     networks:
       - blockchain-network
     depends_on:
-      - postgres1
+      postgres1:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:4001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   # --- NODO 2 (VALIDATORE) ---
   postgres2:
@@ -46,26 +79,39 @@ services:
     networks:
       - blockchain-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   node2:
     build: ./backend
     container_name: blockchain-node-2
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
-      - NODE_ENV=development
-      - PORT=4002 # Porta API interna
+      - PORT=4002
       - P2P_PORT=6002
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres2:5432/${POSTGRES_DB}
       - PEERS=ws://node1:6001,ws://node3:6003
+      - NODE_ENV=${NODE_ENV:-development}
       - DIFFICULTY=${DIFFICULTY:-4}
       - JWT_SECRET=${JWT_SECRET}
-    ports:
-      - "4002:4002"
-      - "6002:6002"
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     networks:
       - blockchain-network
     depends_on:
-      - postgres2
+      postgres2:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:4002/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   # --- NODO 3 (VALIDATORE) ---
   postgres3:
@@ -80,40 +126,61 @@ services:
     networks:
       - blockchain-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   node3:
     build: ./backend
     container_name: blockchain-node-3
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
-      - NODE_ENV=development
-      - PORT=4003 # Porta API interna
+      - PORT=4003
       - P2P_PORT=6003
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres3:5432/${POSTGRES_DB}
       - PEERS=ws://node1:6001,ws://node2:6002
+      - NODE_ENV=${NODE_ENV:-development}
       - DIFFICULTY=${DIFFICULTY:-4}
       - JWT_SECRET=${JWT_SECRET}
-    ports:
-      - "4003:4003"
-      - "6003:6003"
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     networks:
       - blockchain-network
     depends_on:
-      - postgres3
+      postgres3:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:4003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
-  # --- FRONTEND (si collega a un nodo, es. node1) ---
+  # --- FRONTEND (Si collega a Nginx) ---
   frontend:
     build: ./frontend
     container_name: blockchain-frontend
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
-      - VITE_API_BASE_URL=http://localhost:4001 # Si collega all'API del nodo 1
-    ports:
-      - "5173:5173"
+      - CHOKIDAR_USEPOLLING=true
     networks:
       - blockchain-network
     depends_on:
       - node1
     restart: unless-stopped
+    command: ["npm", "run", "dev"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:5173 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   postgres_data_1:
@@ -123,3 +190,4 @@ volumes:
 networks:
   blockchain-network:
     driver: bridge
+

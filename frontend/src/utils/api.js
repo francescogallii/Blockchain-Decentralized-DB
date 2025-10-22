@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4001';
+// Usa percorso relativo - Nginx gestirà il routing
+const API_BASE_URL = '/api';
 
 export async function apiCall(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -27,7 +28,7 @@ export async function apiCall(endpoint, options = {}) {
         errorData = { message: `HTTP error! Status: ${response.status}` };
       }
       
-      const error = new Error(errorData.error || 'An unknown error occurred.');
+      const error = new Error(errorData.error || errorData.message || 'An unknown error occurred.');
       error.status = response.status;
       error.details = errorData.details || [];
       console.error("API Error:", errorData);
@@ -43,7 +44,6 @@ export async function apiCall(endpoint, options = {}) {
 
   } catch (error) {
     console.error(`API call failed for endpoint: ${endpoint}`, error);
-    // Re-throw the error so react-query can handle it
     throw error;
   }
 }

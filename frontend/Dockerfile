@@ -1,20 +1,29 @@
+# Percorso: ./frontend/Dockerfile (CORRETTO)
+
 FROM node:20-alpine
 WORKDIR /app
 
-# Configura npm per retry e timeout
+# --- CORREZIONE ---
+# Aggiunge curl per permettere il funzionamento dell'healthcheck in docker-compose
+#RUN apk update && apk add --no-cache curl
+
+# Configurazione NPM ottimizzata
 RUN npm config set registry https://registry.npmjs.org/ && \
-    npm config set fetch-retries 5 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm config set maxsockets 5
+    npm config set fetch-retries 3 && \
+    npm config set fetch-timeout 60000 && \
+    npm config set loglevel warn && \
+    npm config set progress false
 
-COPY package*.json ./
+# Copy package files
+COPY package.json package-lock.json ./
 
-# Installa con retry manuale
-RUN npm install --verbose --no-audit --maxsockets 1 || \
-    (sleep 10 && npm install --verbose --no-audit --maxsockets 1) || \
-    (sleep 20 && npm install --verbose --no-audit)
+# Install dependencies
+RUN npm ci --no-optional --no-audit --no-fund
 
+# Copy source code
 COPY . .
+
 EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+
+# Il comando di avvio è gestito in docker-compose.yml per flessibilità
+# CMD ["npm", "run", "dev"]

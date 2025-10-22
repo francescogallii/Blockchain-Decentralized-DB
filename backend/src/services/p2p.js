@@ -6,13 +6,12 @@ const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 
 const MESSAGE_TYPES = {
   CHAIN: 'CHAIN',
-  BLOCK: 'BLOCK', // Per annunciare un nuovo blocco
+  BLOCK: 'BLOCK',
 };
 
 class P2pServer {
-  constructor(blockchain, pool) {
+  constructor(blockchain) {
     this.blockchain = blockchain;
-    this.pool = pool;
     this.sockets = [];
   }
 
@@ -27,8 +26,8 @@ class P2pServer {
     peers.forEach(peer => {
       const socket = new WebSocket(peer);
       socket.on('open', () => this.connectSocket(socket));
-      socket.on('error', (err) => {
-        logger.warn(`Failed to connect to peer: ${peer}`);
+      socket.on('error', () => {
+        // Silently handle connection errors, it's normal for nodes to start at different times
       });
     });
   }
@@ -43,7 +42,7 @@ class P2pServer {
   messageHandler(socket) {
     socket.on('message', async (message) => {
       try {
-        const data = JSON.parse(message);
+        const data = JSON.parse(message.toString());
         logger.info('Received P2P message', { type: data.type });
 
         switch (data.type) {
@@ -51,8 +50,11 @@ class P2pServer {
             await this.blockchain.replaceChain(data.chain);
             break;
           case MESSAGE_TYPES.BLOCK:
-            // Un peer ha annunciato un nuovo blocco, verifichiamolo e aggiungiamolo
-            await this.blockchain.addBlock(data.block);
+            const added = await this.blockchain.addBlock(data.block);
+            if (added) {
+                // Se abbiamo aggiunto il blocco, lo ri-trasmettiamo per assicurarci che tutti lo ricevano
+                this.broadcastBlock(data.block);
+            }
             break;
         }
       } catch (error) {

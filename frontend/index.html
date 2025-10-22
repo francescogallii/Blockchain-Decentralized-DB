@@ -8,37 +8,30 @@
     <meta name="keywords" content="blockchain, database, crittografia, RSA, AES, dati sensibili, sicurezza" />
     <meta name="author" content="Blockchain Database System" />
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
+        <meta property="og:type" content="website" />
     <meta property="og:title" content="Blockchain Database System" />
     <meta property="og:description" content="Sistema sicuro per il trattamento di dati sensibili utilizzando tecnologia blockchain e crittografia avanzata" />
     <meta property="og:image" content="/og-image.png" />
     
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:title" content="Blockchain Database System" />
     <meta property="twitter:description" content="Sistema sicuro per il trattamento di dati sensibili utilizzando tecnologia blockchain e crittografia avanzata" />
     <meta property="twitter:image" content="/og-image.png" />
     
-    <!-- Security headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:4001 ws://localhost:*; worker-src 'self' blob:;" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+        <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     
-    <!-- Performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="http://localhost:4001" />
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     
     <title>Blockchain Database System - Gestione Sicura Dati Sensibili</title>
     
-    <!-- Inline critical CSS for faster loading -->
-    <style>
+        <style>
       /* Critical CSS for above-the-fold content */
       body {
         margin: 0;
@@ -101,8 +94,7 @@
   </head>
   
   <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loading-screen">
+        <div class="loading-screen" id="loading-screen">
       <div style="text-align: center; margin-bottom: 32px;">
         <div style="width: 64px; height: 64px; background-color: #3b82f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
           <svg width="32" height="32" fill="white" viewBox="0 0 24 24">
@@ -126,11 +118,9 @@
       </div>
     </div>
 
-    <!-- Main Application Root -->
-    <div id="root"></div>
+        <div id="root"></div>
 
-    <!-- Error Fallback (shown if JavaScript fails to load) -->
-    <noscript>
+        <noscript>
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 32px;">
         <div style="background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 8px; padding: 24px; max-width: 480px;">
           <div style="color: #dc2626; font-size: 48px; margin-bottom: 16px;">⚠️</div>
@@ -148,11 +138,9 @@
       </div>
     </noscript>
 
-    <!-- Module Script -->
-    <script type="module" src="/src/main.jsx"></script>
+        <script type="module" src="/src/main.jsx"></script>
     
-    <!-- Remove loading screen when app is ready -->
-    <script>
+        <script>
       // Remove loading screen after a timeout to prevent it from staying forever
       setTimeout(() => {
         const loadingScreen = document.getElementById('loading-screen');
@@ -199,8 +187,7 @@
       });
     </script>
     
-    <!-- Service Worker Registration (for caching in production) -->
-    <script>
+        <script>
       if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
