@@ -3,7 +3,6 @@ const { DATABASE_URL } = require('../config');
 const logger = require('../utils/logger');
 
 class DatabaseManager {
-	// ... (rest of the class remains the same)
 
 	// Inserito il metodo connect e query per centralizzare la gestione della connessione
 	constructor() {
@@ -127,7 +126,7 @@ async function createSchema() {
 			);
 		`);
 		
-		// Trigger per l'immutabilità (migliorato)
+		// Trigger per l'immutabilità
 		await client.query(`
             CREATE OR REPLACE FUNCTION prevent_blockchain_tampering()
             RETURNS trigger AS $$

@@ -1,5 +1,3 @@
-// Percorso: ./frontend/vite.config.js (CORRETTO)
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 

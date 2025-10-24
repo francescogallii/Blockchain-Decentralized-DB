@@ -1,5 +1,3 @@
-// Percorso: ./backend/src/utils/logger.js
-
 const winston = require('winston');
 const path = require('path');
 const { LOG_LEVEL, NODE_ENV } = require('../config');

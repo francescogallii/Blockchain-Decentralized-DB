@@ -1,4 +1,3 @@
-// Percorso: ./backend/src/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -11,7 +10,6 @@ const { initDb, pool } = require('./database/db');
 // Servizi decentralizzati
 const P2pServer = require('./services/p2p');
 const Blockchain = require('./services/blockchain');
-// CORREZIONE: Questo import ora funziona perchÃ© verifier.js Ã¨ corretto
 const { startVerifier } = require('./services/verifier'); 
 
 const creatorsRoutes = require('./routes/creators');

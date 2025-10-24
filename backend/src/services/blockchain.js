@@ -1,7 +1,5 @@
-// Percorso: backend/src/services/blockchain.js
 const { pool } = require('../database/db');
 const logger = require('../utils/logger');
-const { GENESIS_HASH } = require('../config');
 
 class Blockchain {
     constructor() {
@@ -16,7 +14,6 @@ class Blockchain {
             // Converte i campi Buffer da bytea a Buffer in memoria
             this.chain = rows.map(block => ({
                 ...block,
-                // Assicurati che questi campi esistano prima di chiamare Buffer.from
                 encrypted_data: block.encrypted_data ? Buffer.from(block.encrypted_data) : Buffer.alloc(0),
                 data_iv: block.data_iv ? Buffer.from(block.data_iv) : Buffer.alloc(0),
                 encrypted_data_key: block.encrypted_data_key ? Buffer.from(block.encrypted_data_key) : Buffer.alloc(0),
@@ -43,9 +40,6 @@ class Blockchain {
 
     // Funzione per aggiungere un blocco, sia esso creato localmente o ricevuto da P2P
     async addBlock(block) {
-        // Controllo di sequenza RIMOSSO - Ci affidiamo a ON CONFLICT e logica P2P/Forking
-        // const latestBlock = await this.getLatestBlock();
-        // if (latestBlock && block.previous_hash !== latestBlock.block_hash) { ... }
 
         // Ensure block data is in Buffer format for DB insertion
         // Handle cases where block comes from API (already Buffer) vs P2P (object { type: 'Buffer', data: [...] })
@@ -130,17 +124,6 @@ class Blockchain {
 
         logger.info(`Received a longer chain with ${newChain.length} blocks. Verifying and replacing local chain...`);
 
-        // VALIDAZIONE BASE (In produzione servirebbe validazione completa di ogni blocco)
-        // Qui si potrebbe aggiungere un ciclo per validare hash, PoW, firme di newChain
-        // Ad esempio:
-        // for (const block of newChain) {
-        //    const isValid = await someValidationFunction(block);
-        //    if (!isValid) {
-        //       logger.error('Received chain is invalid. Aborting replacement.');
-        //       return;
-        //    }
-        // }
-
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
@@ -167,10 +150,6 @@ class Blockchain {
                     block_id: block.block_id || crypto.randomUUID() // Assicura un block_id
                 };
 
-                 // Aggiungi un log dettagliato prima dell'inserimento
-                // logger.debug(`Inserting block #${blockBuffer.block_number} during replaceChain`, { hash: blockBuffer.block_hash, prevHash: blockBuffer.previous_hash });
-
-
                 await client.query(
                     `INSERT INTO blockchain.blocks (
                         block_id, block_number, creator_id, previous_hash, block_hash,
@@ -178,7 +157,7 @@ class Blockchain {
                         data_size, signature, created_at, mining_duration_ms, verified, verified_at
                      ) VALUES (
                         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
-                     )`, // Aggiunti verified e verified_at se presenti nel blocco ricevuto
+                     )`, 
                     [
                         blockBuffer.block_id, blockBuffer.block_number, blockBuffer.creator_id,
                         blockBuffer.previous_hash, blockBuffer.block_hash, blockBuffer.nonce,

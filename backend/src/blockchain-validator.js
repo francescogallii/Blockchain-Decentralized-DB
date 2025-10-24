@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const CryptoUtils = require('./crypto-utils');
 const logger = require('../utils/logger');
 

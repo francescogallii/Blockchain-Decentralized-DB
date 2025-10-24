@@ -1,4 +1,3 @@
-// Percorso: backend/src/routes/blocks.js
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { pool } = require('../database/db');
@@ -38,7 +37,7 @@ router.get('/', asyncHandler(async (req, res) => {
     if (sortBy === 'oldest') {
         orderByClause = 'ORDER BY created_at ASC';
     } else if (sortBy === 'block_number') {
-        orderByClause = 'ORDER BY block_number DESC'; // o ASC se preferisci
+        orderByClause = 'ORDER BY block_number DESC'; // o ASC a seconda delle preferenze
     }
 
     // Query per contare il totale
@@ -232,7 +231,6 @@ router.post('/', validateBlock, asyncHandler(async (req, res) => {
 
 // GET /stats/summary - Statistiche sui blocchi
 router.get('/stats/summary', asyncHandler(async (req, res) => {
-    // CORREZIONE: Rimossa la virgola dopo AVG(data_size)
     const statsQuery = `
         SELECT
             COUNT(*) as total_blocks,
@@ -243,7 +241,7 @@ router.get('/stats/summary', asyncHandler(async (req, res) => {
             AVG(data_size) as avg_data_size,
             AVG(difficulty) as avg_difficulty
         FROM blockchain.blocks
-    `; // La virgola dopo avg_data_size è stata rimossa nella riga sopra
+    `; 
 
     const { rows } = await pool.query(statsQuery);
 

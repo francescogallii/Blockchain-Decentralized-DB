@@ -24,7 +24,6 @@ class P2pServer {
 
     connectToPeers() {
         peers.forEach(peer => {
-            // CORREZIONE: Rimosso il 'new' di troppo
             const socket = new WebSocket(peer); 
             socket.on('open', () => this.connectSocket(socket));
             socket.on('error', (err) => {

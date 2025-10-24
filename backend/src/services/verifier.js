@@ -1,7 +1,5 @@
-// Percorso: ./backend/src/services/verifier.js
 // Standardizzato buildHashInput usando CryptoUtils
 
-const crypto = require('crypto');
 const CryptoUtils = require('../utils/cryptoUtils');
 const logger = require('../utils/logger');
 const { GENESIS_HASH } = require('../config');
@@ -135,7 +133,6 @@ class BlockchainValidator {
   async verifyBlock(block) { // Ora riceve blockWithBuffers
     try {
       // 1. Verify hash calculation
-      // CORREZIONE: Usa CryptoUtils.buildHashInput
       const hashInputString = CryptoUtils.buildHashInput({
         previous_hash: block.previous_hash,
         encrypted_data: block.encrypted_data,
@@ -178,7 +175,7 @@ class BlockchainValidator {
         return false;
       }
 
-      // 5. Verify data integrity (ora usa i buffer corretti)
+      // 5. Verify data integrity
       if (!this.verifyDataIntegrity(block)) {
         logger.warn(`Block ${block.block_id} (#${block.block_number}): Data integrity check failed`);
         return false;
@@ -194,9 +191,7 @@ class BlockchainValidator {
       return false;
     }
   }
-
-  // RIMOSSO: buildHashInput - ora si usa CryptoUtils.buildHashInput
-
+  
   // Verify Proof-of-Work
   verifyProofOfWork(blockHash, difficulty) {
     const requiredPrefix = '0'.repeat(difficulty);

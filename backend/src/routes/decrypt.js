@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { pool } = require('../database/db');
-const CryptoUtils = require('../utils/cryptoUtils'); // Percorso corretto
+const CryptoUtils = require('../utils/cryptoUtils');
 const logger = require('../utils/logger');
 const { asyncHandler } = require('../utils/errors');
 
