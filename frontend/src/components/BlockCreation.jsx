@@ -30,7 +30,8 @@ const BlockCreation = () => {
   // Fetch creators list
   const { data: creators, isLoading: loadingCreators } = useQuery(
     'creators',
-    () => apiCall('/api/creators')
+    // CORREZIONE: Rimosso /api/
+    () => apiCall('/creators')
   );
 
   // Block creation mutation
@@ -39,7 +40,8 @@ const BlockCreation = () => {
       // Setup mining progress tracking
       setMiningProgress({ status: 'starting', startTime: Date.now() });
       
-      return apiCall('/api/blocks', {
+      // CORREZIONE: Rimosso /api/
+      return apiCall('/blocks', {
         method: 'POST',
         body: JSON.stringify(data)
       });

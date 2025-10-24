@@ -28,7 +28,8 @@ const CreatorRegistration = () => {
   // Fetch existing creators
   const { data: creators, isLoading: loadingCreators } = useQuery(
     'creators',
-    () => apiCall('/api/creators'),
+    // CORREZIONE: Rimosso /api/
+    () => apiCall('/creators'),
     {
       refetchOnWindowFocus: false
     }
@@ -36,7 +37,8 @@ const CreatorRegistration = () => {
 
   // Registration mutation
   const registerMutation = useMutation(
-    (data) => apiCall('/api/creators', {
+    // CORREZIONE: Rimosso /api/
+    (data) => apiCall('/creators', {
       method: 'POST',
       body: JSON.stringify(data)
     }),

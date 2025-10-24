@@ -1,29 +1,32 @@
-# Percorso: ./frontend/Dockerfile (CORRETTO)
-
 FROM node:20-alpine
 WORKDIR /app
 
-# --- CORREZIONE ---
-# Aggiunge curl per permettere il funzionamento dell'healthcheck in docker-compose
-#RUN apk update && apk add --no-cache curl
-
-# Configurazione NPM ottimizzata
+# 1. Configura npm per il timeout e i retry massimi
+# Aumentiamo fetch-timeout per gestire le tue connessioni lente
 RUN npm config set registry https://registry.npmjs.org/ && \
-    npm config set fetch-retries 3 && \
-    npm config set fetch-timeout 60000 && \
-    npm config set loglevel warn && \
-    npm config set progress false
+    npm config set fetch-retries 10 && \
+    npm config set fetch-retry-mintimeout 30000 && \
+    npm config set fetch-retry-maxtimeout 180000 && \
+    npm config set maxsockets 5 && \
+    # Imposta un timeout per il client (molto alto per la tua situazione)
+    npm config set fetch-timeout 360000 
 
-# Copy package files
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm ci --no-optional --no-audit --no-fund
+# 2. Uso di npm ci (Clean Install) che è più veloce di install.
+# Eseguiamo npm ci e permettiamo 3 tentativi con ritardi maggiori (10s)
+RUN set -ex; \
+    for i in 1 2 3; do \
+        echo "Attempt $i to install dependencies..."; \
+        npm ci --prefer-offline --no-audit --progress=false --loglevel error && break || \
+        (echo "Installation failed. Waiting 10 seconds before retry..." && sleep 10); \
+    done; \
+    if [ $i -eq 3 ]; then \
+        echo "Final installation attempt failed. Exiting."; \
+        exit 1; \
+    fi;
 
-# Copy source code
 COPY . .
 
 EXPOSE 5173
-
-# Il comando di avvio è gestito in docker-compose.yml per flessibilità
-# CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]

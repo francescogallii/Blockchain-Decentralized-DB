@@ -32,12 +32,14 @@ const DataDecryption = () => {
   // Fetch creators list
   const { data: creators, isLoading: loadingCreators } = useQuery(
     'creators',
-    () => apiCall('/api/creators')
+    // CORREZIONE: Rimosso /api/
+    () => apiCall('/creators')
   );
 
   // All blocks decryption mutation
   const decryptAllMutation = useMutation(
-    (data) => apiCall('/api/decrypt', {
+    // CORREZIONE: Rimosso /api/
+    (data) => apiCall('/decrypt', {
       method: 'POST',
       body: JSON.stringify(data)
     }),
@@ -54,7 +56,8 @@ const DataDecryption = () => {
 
   // Single block decryption mutation
   const decryptSingleMutation = useMutation(
-    (data) => apiCall('/api/decrypt/single', {
+    // CORREZIONE: Rimosso /api/
+    (data) => apiCall('/decrypt/single', {
       method: 'POST',
       body: JSON.stringify(data)
     }),

@@ -3,6 +3,9 @@ const { DATABASE_URL } = require('../config');
 const logger = require('../utils/logger');
 
 class DatabaseManager {
+	// ... (rest of the class remains the same)
+
+	// Inserito il metodo connect e query per centralizzare la gestione della connessione
 	constructor() {
 	    this.pool = new Pool({
 	      connectionString: DATABASE_URL,
@@ -125,39 +128,37 @@ async function createSchema() {
 		`);
 		
 		// Trigger per l'immutabilità (migliorato)
-		// Funzione Trigger (Logica Immutabilità) - CORRETTA
-    await client.query(`
-        CREATE OR REPLACE FUNCTION prevent_blockchain_tampering()
-        RETURNS trigger AS $$
-        BEGIN
-            -- Logica corretta: permette UPDATE SOLO sul campo 'verified'
-            IF TG_OP = 'UPDATE' THEN
-                IF (OLD.verified IS DISTINCT FROM NEW.verified) THEN
-                    -- Permette l'aggiornamento solo se solo 'verified' cambia
-                    RETURN NEW;
-                ELSE
-                    -- Proibisce qualsiasi altro UPDATE sui dati del blocco (hash, nonce, dati, ecc.)
-                    RAISE EXCEPTION 'block_chain is append-only: UPDATE prohibited, except for "verified" status.';
+		await client.query(`
+            CREATE OR REPLACE FUNCTION prevent_blockchain_tampering()
+            RETURNS trigger AS $$
+            BEGIN
+                -- Logica corretta: permette UPDATE SOLO sul campo 'verified'
+                IF TG_OP = 'UPDATE' THEN
+                    IF (OLD.verified IS DISTINCT FROM NEW.verified) THEN
+                        -- Permette l'aggiornamento solo se solo 'verified' cambia
+                        RETURN NEW;
+                    ELSE
+                        -- Proibisce qualsiasi altro UPDATE sui dati del blocco (hash, nonce, dati, ecc.)
+                        RAISE EXCEPTION 'block_chain is append-only: UPDATE prohibited, except for "verified" status.';
+                    END IF;
+                ELSIF TG_OP = 'DELETE' THEN
+                    -- Proibisce DELETE
+                    RAISE EXCEPTION 'block_chain is append-only: DELETE prohibited.';
                 END IF;
-            ELSIF TG_OP = 'DELETE' THEN
-                -- Proibisce DELETE
-                RAISE EXCEPTION 'block_chain is append-only: DELETE prohibited.';
-            END IF;
-            -- Dovrebbe essere irraggiungibile per INSERT/TRUNCATE se non gestiti esplicitamente
-            RETURN NEW;
-        END;
-        $$ LANGUAGE plpgsql;
-    `);
+                -- Dovrebbe essere irraggiungibile per INSERT/TRUNCATE se non gestiti esplicitamente
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+        `);
 
-    // Chiamata Trigger (Sintassi corretta per PostgreSQL) - CORRETTA
-    await client.query('DROP TRIGGER IF EXISTS block_chain_protect ON blockchain.blocks;');
-    await client.query(`
-        CREATE TRIGGER block_chain_protect
-        BEFORE UPDATE OR DELETE ON blockchain.blocks
-        FOR EACH ROW 
-        -- RIMOSSA la clausola WHEN che causava l'errore "column tg_op does not exist"
-        EXECUTE FUNCTION prevent_blockchain_tampering();
-    `);
+		await client.query('DROP TRIGGER IF EXISTS block_chain_protect ON blockchain.blocks;');
+        await client.query(`
+            CREATE TRIGGER block_chain_protect
+            BEFORE UPDATE OR DELETE ON blockchain.blocks
+            FOR EACH ROW 
+            -- RIMOSSA la clausola WHEN che causava l'errore "column tg_op does not exist"
+            EXECUTE FUNCTION prevent_blockchain_tampering();
+        `);
 		
 		// Tabella Audit Events
 		await client.query(`

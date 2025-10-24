@@ -1,3 +1,4 @@
+// Percorso: ./backend/src/index.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -10,12 +11,13 @@ const { initDb, pool } = require('./database/db');
 // Servizi decentralizzati
 const P2pServer = require('./services/p2p');
 const Blockchain = require('./services/blockchain');
+// CORREZIONE: Questo import ora funziona perchÃ© verifier.js Ã¨ corretto
 const { startVerifier } = require('./services/verifier'); 
 
 const creatorsRoutes = require('./routes/creators');
 const blocksRoutes = require('./routes/blocks');
 const decryptRoutes = require('./routes/decrypt');
-const logger = require('./utils/logger'); // L'importazione ora è corretta
+const logger = require('./utils/logger'); // L'importazione ora Ã¨ corretta
 const { globalErrorHandler } = require('./utils/errors');
 
 const app = express();
@@ -42,10 +44,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// API routes
-app.use('/api/creators', creatorsRoutes);
-app.use('/api/blocks', miningLimiter, blocksRoutes);
-app.use('/api/decrypt', decryptRoutes);
+// API routes - Nginx inoltra a queste rotte (senza il prefisso /api)
+app.use('/creators', creatorsRoutes);
+app.use('/blocks', miningLimiter, blocksRoutes);
+app.use('/decrypt', decryptRoutes);
 
 // Health Check
 app.get('/health', async (req, res) => {
@@ -86,10 +88,11 @@ async function main() {
             logger.info(`API server for node listening on http://0.0.0.0:${PORT}`);
         });
 
-        p2pServer.listen(); // <-- CORREZIONE QUI
+        // CORREZIONE: p2pServer.listen() non richiede l'istanza del server
+        // Avvia il server P2P separato sulla sua porta (es. 6001)
+        p2pServer.listen();
         
     } catch (err) {
-        // La chiamata logger.error ora è risolta
         logger.error('Failed to start node', { error: err.message, stack: err.stack }); 
         process.exit(1);
     }

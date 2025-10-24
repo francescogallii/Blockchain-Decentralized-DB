@@ -4,19 +4,17 @@ services:
     image: nginx:stable-alpine
     container_name: blockchain-nginx
     ports:
-      - "80:80"
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
+      # Espone la porta HTTP standard per l'accesso esterno
+      - "80:80" 
+      # Espone la porta API del nodo 1 come fallback
+      - "4001:4001" 
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - blockchain-network
     depends_on:
-      node1:
-        condition: service_healthy
-      frontend:
-        condition: service_healthy
+      - node1
+      - frontend
     restart: always
 
   # --- NODO 1 (API & P2P HUB) ---
@@ -28,6 +26,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
+      # Monteggio volume per persistenza dati
       - postgres_data_1:/var/lib/postgresql/data
     networks:
       - blockchain-network
@@ -41,30 +40,28 @@ services:
   node1:
     build: ./backend
     container_name: blockchain-node-1
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
     environment:
       - PORT=4001
       - P2P_PORT=6001
+      # Connessione al proprio database
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres1:5432/${POSTGRES_DB}
       - PEERS=ws://node2:6002,ws://node3:6003
       - NODE_ENV=${NODE_ENV:-development}
       - DIFFICULTY=${DIFFICULTY:-4}
       - JWT_SECRET=${JWT_SECRET}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+    # Montaggio volume per il codice in sviluppo
+    volumes:
+      - ./backend/src:/app/src
+    # Porta P2P mappata all'esterno rimossa
+    # ports:
+    #   - "6001:6001" 
     networks:
       - blockchain-network
     depends_on:
       postgres1:
         condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:4001/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
 
   # --- NODO 2 (VALIDATORE) ---
   postgres2:
@@ -88,11 +85,8 @@ services:
   node2:
     build: ./backend
     container_name: blockchain-node-2
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
     environment:
-      - PORT=4002
+      - PORT=4002 # Porta API interna
       - P2P_PORT=6002
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres2:5432/${POSTGRES_DB}
       - PEERS=ws://node1:6001,ws://node3:6003
@@ -100,18 +94,17 @@ services:
       - DIFFICULTY=${DIFFICULTY:-4}
       - JWT_SECRET=${JWT_SECRET}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./backend/src:/app/src
+    # Porta P2P mappata all'esterno rimossa
+    # ports:
+    #   - "6002:6002"
     networks:
       - blockchain-network
     depends_on:
       postgres2:
         condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:4002/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
 
   # --- NODO 3 (VALIDATORE) ---
   postgres3:
@@ -135,11 +128,8 @@ services:
   node3:
     build: ./backend
     container_name: blockchain-node-3
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
     environment:
-      - PORT=4003
+      - PORT=4003 # Porta API interna
       - P2P_PORT=6003
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres3:5432/${POSTGRES_DB}
       - PEERS=ws://node1:6001,ws://node2:6002
@@ -147,40 +137,44 @@ services:
       - DIFFICULTY=${DIFFICULTY:-4}
       - JWT_SECRET=${JWT_SECRET}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./backend/src:/app/src
+    # Porta P2P mappata all'esterno rimossa
+    # ports:
+    #   - "6003:6003"
     networks:
       - blockchain-network
     depends_on:
       postgres3:
         condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:4003/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
 
   # --- FRONTEND (Si collega a Nginx) ---
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      # Passa l'URL base al frontend (per Vite)
+      args:
+        - VITE_API_BASE_URL=http://localhost:80 
     container_name: blockchain-frontend
+    environment:
+      # L'applicazione Node.js in esecuzione nel container ha bisogno di sapere dove trovare l'API
+      - VITE_API_BASE_URL=http://localhost:80 
+    # CORREZIONE: Aggiunto DNS esplicito per una risoluzione di rete più rapida
     dns:
       - 8.8.8.8
       - 1.1.1.1
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      # Montaggio per sviluppo
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
     networks:
       - blockchain-network
     depends_on:
-      - node1
+      - node1 
     restart: unless-stopped
-    command: ["npm", "run", "dev"]
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider --timeout=10 http://127.0.0.1:5173 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
 
 volumes:
   postgres_data_1:
@@ -190,4 +184,3 @@ volumes:
 networks:
   blockchain-network:
     driver: bridge
-

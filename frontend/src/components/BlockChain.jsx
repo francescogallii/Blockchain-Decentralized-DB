@@ -29,7 +29,8 @@ const BlockChain = () => {
   // Fetch blocks with pagination
   const { data: blocksData, isLoading, error, refetch } = useQuery(
     ['blocks', currentPage, verifiedFilter, sortBy],
-    () => apiCall(`/api/blocks?page=${currentPage}&limit=${pageSize}${
+    // CORREZIONE: Rimosso /api/
+    () => apiCall(`/blocks?page=${currentPage}&limit=${pageSize}${
       verifiedFilter !== 'all' ? `&verified=${verifiedFilter === 'verified'}` : ''
     }`),
     {

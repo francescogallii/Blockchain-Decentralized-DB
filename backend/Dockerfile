@@ -1,35 +1,24 @@
-# Percorso: ./backend/Dockerfile (FINALE)
+# Percorso: ./backend/Dockerfile
 
+# Usa un'immagine Node.js coerente con il frontend
 FROM node:20-alpine
+
+# Imposta la directory di lavoro
 WORKDIR /app
 
-# Variabile d'ambiente per la porta
-ENV PORT=4001
-EXPOSE $PORT
+# Copia i file package.json e package-lock.json
+COPY package*.json ./
 
-# --- RIMOZIONE ---
-# La riga "apk add curl" è stata rimossa.
-# L'healthcheck userà wget, che è già incluso nell'immagine base.
+# Installazione delle dipendenze di produzione (più robusta del ci in ambienti instabili)
+RUN npm install --omit=dev
 
-# Configurazione NPM ottimizzata
-RUN npm config set registry https://registry.npmjs.org/ && \
-    npm config set fetch-retries 3 && \
-    npm config set fetch-timeout 60000 && \
-    npm config set loglevel warn
-
-# Copia solo i file necessari per l'installazione
-COPY package.json package-lock.json* ./
-
-# Installa le dipendenze in modo ottimizzato per Docker
-RUN if [ -f package-lock.json ]; then \
-      npm ci --no-optional --no-audit --no-fund; \
-    else \
-      npm install --no-optional --no-audit --no-fund; \
-    fi
-
-# Copia il resto del codice sorgente
+# Copia il resto del codice sorgente del backend
+# Nota: La cartella 'src' viene montata da docker-compose.yml per lo sviluppo
 COPY . .
 
-# Comando per avviare il server backend
-CMD ["npm", "start"]
+# Esponi le porte definite nel docker-compose.yml
+EXPOSE 4001
+EXPOSE 6001
 
+# Comando per avviare l'applicazione
+CMD ["npm", "start"]
