@@ -1,6 +1,5 @@
-// File: backend/src/routes/blocks.js
 const express = require('express');
-const crypto = require('crypto'); // Import crypto module
+const crypto = require('crypto'); 
 const { body, validationResult, param } = require('express-validator');
 const { pool } = require('../database/db');
 const CryptoUtils = require('../utils/cryptoUtils');
@@ -33,7 +32,7 @@ const validateCommitBlock = [
 ];
 
 
-// GET /blocks - Recupera blocchi con paginazione e filtri (Invariato)
+// GET /blocks - Recupera blocchi con paginazione e filtri
 router.get('/', asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, verified = 'all', sortBy = 'newest' } = req.query;
     const pageSize = parseInt(limit, 10);
@@ -105,8 +104,6 @@ router.get('/', asyncHandler(async (req, res) => {
     });
 }));
 
-
-// ** NUOVA ROTTA: Step 1 del Mining - Preparazione **
 // POST /blocks/prepare-mining
 router.post('/prepare-mining', validatePrepareMining, asyncHandler(async (req, res) => {
     const errors = validationResult(req);
@@ -142,8 +139,6 @@ router.post('/prepare-mining', validatePrepareMining, asyncHandler(async (req, r
     });
 }));
 
-
-// ** NUOVA ROTTA: Step 2 del Mining - Commit del Blocco Minato dal Frontend **
 // POST /blocks/commit
 router.post('/commit', validateCommitBlock, asyncHandler(async (req, res) => {
     const errors = validationResult(req);
@@ -153,7 +148,6 @@ router.post('/commit', validateCommitBlock, asyncHandler(async (req, res) => {
 
     const {
         creator_id,
-        previous_hash, // Hash usato per il calcolo (potrebbe essere GENESIS_HASH)
         block_hash,
         nonce,
         difficulty,

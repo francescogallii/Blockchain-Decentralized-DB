@@ -1,6 +1,5 @@
-// File: frontend/src/utils/api.js (Nessuna modifica necessaria)
 // Usa percorso relativo - Nginx gestirà il routing
-const API_BASE_URL = '/api'; // Corretto per Nginx
+const API_BASE_URL = '/api'; 
 
 export async function apiCall(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;

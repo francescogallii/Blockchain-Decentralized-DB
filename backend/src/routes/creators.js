@@ -1,10 +1,9 @@
-// File: backend/src/routes/creators.js
 const express = require('express');
-const { body, validationResult, param } = require('express-validator'); // Aggiunto param
+const { body, validationResult, param } = require('express-validator');
 const { pool } = require('../database/db');
 const CryptoUtils = require('../utils/cryptoUtils');
 const logger = require('../utils/logger');
-const { asyncHandler, ConflictError, ValidationError, NotFoundError } = require('../utils/errors'); // Aggiunto NotFoundError
+const { asyncHandler, ConflictError, ValidationError, NotFoundError } = require('../utils/errors');
 
 const router = express.Router();
 
@@ -71,7 +70,6 @@ router.post('/', validateCreator, asyncHandler(async (req, res) => {
 }));
 
 // GET /creators/:display_name/public-key - Recupera chiave pubblica per verifica frontend
-// ** NUOVO ENDPOINT **
 router.get(
     '/:display_name/public-key',
     [

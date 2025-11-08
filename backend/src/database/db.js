@@ -4,7 +4,6 @@ const logger = require('../utils/logger');
 
 class DatabaseManager {
 
-	// Inserito il metodo connect e query per centralizzare la gestione della connessione
 	constructor() {
 	    this.pool = new Pool({
 	      connectionString: DATABASE_URL,
@@ -96,7 +95,7 @@ async function createSchema() {
 		await client.query(`
 			CREATE TABLE IF NOT EXISTS blockchain.blocks (
 				block_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-				block_number BIGSERIAL UNIQUE, -- NUOVA COLONNA PER ORDINAMENTO E INTEGRITÀ
+				block_number BIGSERIAL UNIQUE, -- HEIGHT COLONNA PER ORDINAMENTO E INTEGRITÀ
 				creator_id UUID REFERENCES blockchain.creators(creator_id) ON DELETE SET NULL,
 				previous_hash VARCHAR(64),
 				block_hash VARCHAR(64) UNIQUE NOT NULL,
@@ -131,7 +130,7 @@ async function createSchema() {
             CREATE OR REPLACE FUNCTION prevent_blockchain_tampering()
             RETURNS trigger AS $$
             BEGIN
-                -- Logica corretta: permette UPDATE SOLO sul campo 'verified'
+                -- permette UPDATE SOLO sul campo 'verified'
                 IF TG_OP = 'UPDATE' THEN
                     IF (OLD.verified IS DISTINCT FROM NEW.verified) THEN
                         -- Permette l'aggiornamento solo se solo 'verified' cambia

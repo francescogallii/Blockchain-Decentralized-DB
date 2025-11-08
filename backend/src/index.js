@@ -15,7 +15,7 @@ const { startVerifier } = require('./services/verifier');
 const creatorsRoutes = require('./routes/creators');
 const blocksRoutes = require('./routes/blocks');
 const decryptRoutes = require('./routes/decrypt');
-const logger = require('./utils/logger'); // L'importazione ora Ã¨ corretta
+const logger = require('./utils/logger');
 const { globalErrorHandler } = require('./utils/errors');
 
 const app = express();
@@ -23,7 +23,7 @@ const app = express();
 const blockchain = new Blockchain();
 const p2pServer = new P2pServer(blockchain);
 
-// Middleware
+// Middleware di sicurezza e performance
 app.use(helmet());
 app.use(compression());
 

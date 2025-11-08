@@ -14,7 +14,7 @@ class BlockchainValidator {
     this.verificationInterval = null;
   }
 
-  // Start the verification process
+  // Avvia il processo di verifica
   start() {
     if (this.isRunning) {
       logger.warn('Blockchain verifier already running');
@@ -28,10 +28,10 @@ class BlockchainValidator {
       intervalMs: this.intervalMs
     });
 
-    // Run immediate verification
+    // Esegui una verifica immediata all'avvio
     this.verifyPendingBlocks();
 
-    // Set up periodic verification if interval is specified
+    // Imposta intervallo per verifiche periodiche
     if (this.intervalMs) {
       this.verificationInterval = setInterval(() => {
         this.verifyPendingBlocks();
@@ -39,7 +39,7 @@ class BlockchainValidator {
     }
   }
 
-  // Stop the verification process
+  // Ferma il processo di verifica
   stop() {
     if (!this.isRunning) {
       return;
@@ -53,7 +53,7 @@ class BlockchainValidator {
     logger.info('Blockchain verifier stopped');
   }
 
-  // Verify pending blocks
+  // Verifica i blocchi in sospeso
   async verifyPendingBlocks() {
     try {
       const query = `
@@ -129,10 +129,10 @@ class BlockchainValidator {
     }
   }
 
-  // Verify individual block
+  // Verifica singolo blocco
   async verifyBlock(block) { // Ora riceve blockWithBuffers
     try {
-      // 1. Verify hash calculation
+      // 1. Verifica hash del blocco
       const hashInputString = CryptoUtils.buildHashInput({
         previous_hash: block.previous_hash,
         encrypted_data: block.encrypted_data,
@@ -154,7 +154,7 @@ class BlockchainValidator {
         return false;
       }
 
-      // 2. Verify Proof-of-Work difficulty
+      // 2. Verifica difficoltà Proof-of-Work 
       if (!this.verifyProofOfWork(block.block_hash, block.difficulty)) {
         logger.warn(`Block ${block.block_id} (#${block.block_number}): Proof-of-Work failed`, {
           hash: block.block_hash,
@@ -163,19 +163,19 @@ class BlockchainValidator {
         return false;
       }
 
-      // 3. Verify previous hash chain integrity
+      // 3. Verifica integrità della catena
       if (!(await this.verifyChainIntegrity(block))) {
         logger.warn(`Block ${block.block_id} (#${block.block_number}): Chain integrity failed`);
         return false;
       }
 
-      // 4. Verify digital signature
+      // 4. Verifica firma digitale
       if (!(await this.verifyDigitalSignature(block))) {
         logger.warn(`Block ${block.block_id} (#${block.block_number}): Digital signature verification failed`);
         return false;
       }
 
-      // 5. Verify data integrity
+      // 5. Verifica integrità dei dati
       if (!this.verifyDataIntegrity(block)) {
         logger.warn(`Block ${block.block_id} (#${block.block_number}): Data integrity check failed`);
         return false;
@@ -192,13 +192,13 @@ class BlockchainValidator {
     }
   }
   
-  // Verify Proof-of-Work
+  // Verifica Proof-of-Work
   verifyProofOfWork(blockHash, difficulty) {
     const requiredPrefix = '0'.repeat(difficulty);
     return blockHash.startsWith(requiredPrefix);
   }
 
-  // Verify chain integrity
+  // Verifica integrità della catena
   async verifyChainIntegrity(block) {
     try {
       // Genesis block check
@@ -208,7 +208,7 @@ class BlockchainValidator {
         return block.previous_hash === null || block.previous_hash === GENESIS_HASH;
       }
 
-      // Find the previous block by number
+      // Trova l'hash del blocco precedente dal DB
       const prevBlockQuery = `
         SELECT block_hash FROM blockchain.blocks 
         WHERE block_number = $1
@@ -236,7 +236,7 @@ class BlockchainValidator {
     }
   }
 
-  // Verify digital signature
+  // Verifica firma digitale
   async verifyDigitalSignature(block) { // Riceve blockWithBuffers
     try {
       if (!block.creator_id) {
@@ -244,7 +244,7 @@ class BlockchainValidator {
         return false; // Un blocco senza creator non può avere firma valida
       }
 
-      // Get creator's public key
+      // Recupera la chiave pubblica del creator dal DB
       const creatorQuery = `
         SELECT public_key_pem FROM blockchain.creators 
         WHERE creator_id = $1 AND is_active = true
@@ -258,7 +258,7 @@ class BlockchainValidator {
 
       const publicKeyPem = creatorResult.rows[0].public_key_pem;
 
-      // Verify signature against block hash
+      // Verifica la firma
       const signatureIsValid = CryptoUtils.verifySignature(
         publicKeyPem,
         block.block_hash, // La firma è sull'hash del blocco
@@ -276,15 +276,15 @@ class BlockchainValidator {
     }
   }
 
-  // Verify data integrity
+  // Verifica integrità dei dati
   verifyDataIntegrity(block) { // Riceve blockWithBuffers
     try {
-      // Check that encrypted data size matches declared size
+      // Verifica che le dimensioni dei buffer corrispondano a data_size
       const actualSize = block.encrypted_data.length + 
                         block.data_iv.length + 
                         block.encrypted_data_key.length;
 
-      // Allow for reasonable variance due to padding/metadata (es. authTag)
+      // Permetti una piccola variazione dovuta a padding o formattazione
       const sizeVariance = Math.abs(actualSize - block.data_size);
       
       // Tolleranza aumentata leggermente per sicurezza, ma 100 è già alta
@@ -293,13 +293,13 @@ class BlockchainValidator {
         return false;
       }
 
-      // Verify IV size (AES-GCM usa tipicamente 12 o 16 bytes, noi usiamo 16)
+      // Verifica dimensione IV (AES standard usa 16 bytes)
       if (block.data_iv.length !== 16) {
         logger.warn(`Block #${block.block_number}: Invalid IV size: ${block.data_iv.length}, expected 16`);
         return false;
       }
 
-      // Verify encrypted AES key size (RSA-2048 OAEP produce 256 bytes)
+      // Verifica dimensione chiave crittografata (dipende dall'algoritmo, qui assumiamo RSA-2048)
       const expectedKeySize = 256; // Per RSA 2048
       if (block.encrypted_data_key.length !== expectedKeySize) {
         logger.warn(`Block #${block.block_number}: Invalid encrypted key size: ${block.encrypted_data_key.length}, expected ${expectedKeySize} for RSA-2048`);
@@ -307,7 +307,7 @@ class BlockchainValidator {
         // return false; // Commentato per non bloccare la verifica solo per questo
       }
       
-      // encrypted_data include ciphertext + authTag (16 bytes)
+      // Verifica che i buffer non siano vuoti
       if (block.encrypted_data.length < 16) {
         logger.warn(`Block #${block.block_number}: Encrypted data buffer too small to contain auth tag (${block.encrypted_data.length} bytes)`);
         return false;
@@ -322,7 +322,7 @@ class BlockchainValidator {
     }
   }
 
-  // Get verification statistics
+  // Ottiene statistiche di verifica
   async getVerificationStats() {
     try {
       const statsQuery = `
@@ -345,12 +345,12 @@ class BlockchainValidator {
   }
 }
 
-// Factory function to start verifier
+// Funzione helper per avviare il verificatore
 function startVerifier(pool, options = {}) {
   const verifier = new BlockchainValidator(pool, options);
   verifier.start();
 
-  // Graceful shutdown
+  // Gestione graceful shutdown
   process.on('SIGTERM', () => verifier.stop());
   process.on('SIGINT', () => verifier.stop());
 

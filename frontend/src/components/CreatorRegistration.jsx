@@ -25,19 +25,17 @@ const CreatorRegistration = () => {
   
   const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm();
 
-  // Fetch existing creators
+  // Fetch creators esistenti
   const { data: creators, isLoading: loadingCreators } = useQuery(
     'creators',
-    // CORREZIONE: Rimosso /api/
     () => apiCall('/creators'),
     {
       refetchOnWindowFocus: false
     }
   );
 
-  // Registration mutation
+  // Mutation per registrare nuovo creator
   const registerMutation = useMutation(
-    // CORREZIONE: Rimosso /api/
     (data) => apiCall('/creators', {
       method: 'POST',
       body: JSON.stringify(data)
@@ -56,7 +54,7 @@ const CreatorRegistration = () => {
     }
   );
 
-  // Generate RSA key pair
+  // Genera coppia di chiavi RSA
   const generateKeys = async () => {
     setIsGeneratingKeys(true);
     try {
@@ -82,7 +80,7 @@ const CreatorRegistration = () => {
     }
   };
 
-  // Copy to clipboard
+  // Copia testo negli appunti
   const copyToClipboard = async (text, type) => {
     try {
       await navigator.clipboard.writeText(text);

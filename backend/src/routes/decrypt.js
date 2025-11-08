@@ -1,10 +1,8 @@
-// File: backend/src/routes/decrypt.js
 const express = require('express');
-const { param, validationResult } = require('express-validator'); // Rimosso body, aggiunto param
+const { param, validationResult } = require('express-validator');
 const { pool } = require('../database/db');
-// const CryptoUtils = require('../utils/cryptoUtils'); // Non più necessario qui
 const logger = require('../utils/logger');
-const { asyncHandler, ValidationError, NotFoundError } = require('../utils/errors'); // Aggiunto ValidationError, NotFoundError
+const { asyncHandler, ValidationError, NotFoundError } = require('../utils/errors'); 
 
 const router = express.Router();
 

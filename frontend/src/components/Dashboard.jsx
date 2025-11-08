@@ -1,5 +1,3 @@
-// Percorso: ./frontend/src/components/Dashboard.jsx
-
 import React from 'react'
 import { useQuery } from 'react-query'
 import { apiCall } from '../utils/api'
@@ -7,11 +5,9 @@ import { Users, Blocks, Shield, Activity } from 'lucide-react'
 
 function Dashboard() {
   const { data, isLoading, error } = useQuery(
-    'dashboard-stats', // Cambiato il nome per invalidazione piÃ¹ specifica
+    'dashboard-stats',
     () => Promise.all([
-      // CORREZIONE: Rimosso /api/ duplicato
       apiCall('/creators/stats/summary'), 
-      // CORREZIONE: Rimosso /api/ duplicato
       apiCall('/blocks/stats/summary')
     ])
   )

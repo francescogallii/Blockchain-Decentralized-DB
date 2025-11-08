@@ -1,4 +1,3 @@
-// File: frontend/src/components/BlockCreation.jsx
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useForm } from 'react-hook-form';
@@ -10,7 +9,7 @@ import { apiCall } from '../utils/api';
 import cryptoUtils from '../utils/cryptoUtils'; // Importa tutte le funzioni crypto
 
 // ** NUOVA COSTANTE: Timeout per il mining lato client (in millisecondi) **
-// Puoi aggiustare questo valore. 120000 = 2 minuti.
+// Si può aggiustare questo valore. 120000 = 2 minuti.
 const CLIENT_SIDE_MINING_TIMEOUT_MS = 120000;
 
 const BlockCreation = () => {
@@ -64,7 +63,7 @@ const BlockCreation = () => {
                 queryClient.invalidateQueries('dashboard-stats');
                 reset();
                 setPreparationData(null);
-                setValue('private_key_pem', ''); // Clear private key field for security
+                setValue('private_key_pem', ''); // Pulisce la chiave privata dal form
                 setTimeout(() => setMiningState({ status: 'idle' }), 5000);
             },
             onError: (error) => {
@@ -74,12 +73,11 @@ const BlockCreation = () => {
         }
     );
 
-    // Watch form values
     const selectedCreatorName = watch('display_name');
     const dataText = watch('data_text');
     const privateKeyPem = watch('private_key_pem');
 
-    // Load private key from file
+    // Gestione caricamento file chiave privata
     const handleKeyFileUpload = (event) => {
          const file = event.target.files[0];
          if (!file) return;
@@ -108,13 +106,13 @@ const BlockCreation = () => {
          event.target.value = '';
     };
 
-    // Form submission
+    // Gestione submit form
     const onSubmit = async (formData) => {
         setCreatedBlock(null);
         setMiningState({ status: 'preparing' });
         setPreparationData(null);
 
-        // Basic client-side validation first
+        // Validazioni preliminari client-side
         if (errors.display_name || errors.data_text || errors.private_key_pem) {
              toast.error("Correggi gli errori nel form prima di procedere.");
              setMiningState({ status: 'idle' });
@@ -139,7 +137,7 @@ const BlockCreation = () => {
         });
     };
 
-     // Effect for handling client-side operations after preparation
+    // Effettua operazioni client-side dopo la preparazione
      useEffect(() => {
         const performClientSideOperations = async () => {
             if (miningState.status === 'verifying' && preparationData && privateKeyPem) {
@@ -149,7 +147,7 @@ const BlockCreation = () => {
                 if (!isValidPair) {
                     toast.error('Chiave privata non corrisponde alla chiave pubblica del creator selezionato.', { id: 'key-verify' });
                     setMiningState({ status: 'failed', error: 'Key mismatch' });
-                    setPreparationData(null); // Clear preparation data on failure
+                    setPreparationData(null); // Reset preparation data
                     return;
                 }
 
@@ -183,7 +181,7 @@ const BlockCreation = () => {
                          difficulty: preparationData.difficulty,
                      };
 
-                     // ** CORREZIONE: Usa la costante definita nel frontend **
+                     // Mining lato client con timeout
                      const miningResult = await cryptoUtils.mineBlock(
                          blockDataForMining,
                          preparationData.difficulty,
@@ -227,8 +225,7 @@ const BlockCreation = () => {
         };
 
         performClientSideOperations();
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-     }, [miningState.status, preparationData, privateKeyPem, dataText]); // Added dataText
+     }, [miningState.status, preparationData, privateKeyPem, dataText]); // Dipendenze rilevanti
 
 
     const estimatedSize = dataText ? new Blob([dataText]).size : 0;
@@ -446,7 +443,7 @@ const BlockCreation = () => {
     );
 };
 
-// --- Helper Components --- (Invariati)
+// --- Helper Components --- 
 const DetailItem = ({ label, value, isMono = false }) => (
     <div className="flex justify-between items-center">
         <span className="text-gray-600 shrink-0 mr-2">{label}:</span>

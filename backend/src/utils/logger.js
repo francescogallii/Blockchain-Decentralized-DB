@@ -2,7 +2,7 @@ const winston = require('winston');
 const path = require('path');
 const { LOG_LEVEL, NODE_ENV } = require('../config');
 
-// Define custom log levels (mantenuto)
+// Definizione dei livelli di log
 const logLevels = {
     error: 0,
     warn: 1,
@@ -11,7 +11,7 @@ const logLevels = {
     trace: 4
 };
 
-// Define colors for each log level (mantenuto)
+// Definizione dei colori per i livelli di log
 const logColors = {
     error: 'red',
     warn: 'yellow',
@@ -20,7 +20,7 @@ const logColors = {
     trace: 'magenta'
 };
 
-// Custom format function (mantenuto)
+// Formato personalizzato per i log su file (mantenuto)
 const customFormat = winston.format.combine(
     winston.format.timestamp({
         format: 'YYYY-MM-DD HH:mm:ss'
@@ -38,10 +38,10 @@ const customFormat = winston.format.combine(
     })
 );
 
-// Create transports array (mantenuto)
+// Configura i trasporti in base all'ambiente
 const transports = [];
 
-// Console transport for development (mantenuto)
+// Console transport per sviluppo 
 if (NODE_ENV === 'development') {
     transports.push(
         new winston.transports.Console({
@@ -63,7 +63,7 @@ if (NODE_ENV === 'development') {
     );
 }
 
-// File transports for production (mantenuto)
+// File transports per produzione
 if (NODE_ENV === 'production') {
     // General log file
     transports.push(
@@ -89,7 +89,7 @@ if (NODE_ENV === 'production') {
         })
     );
 
-    // Security log file for audit events
+    // Security log file per eventi sensibili
     transports.push(
         new winston.transports.File({
             filename: path.join(__dirname, '../../logs/security.log'),
@@ -124,10 +124,10 @@ const mainLogger = winston.createLogger({
     ]
 });
 
-// Add colors to winston (mantenuto)
+// Aggiunge i colori definiti ai livelli di log
 winston.addColors(logColors);
 
-// Create specialized loggers for different contexts (mantenuto)
+// Cereazione di logger contestualizzati
 const createContextLogger = (context) => {
     return {
         error: (message, meta = {}) => mainLogger.error(message, { context, ...meta }),
@@ -138,7 +138,7 @@ const createContextLogger = (context) => {
     };
 };
 
-// Security logger for sensitive operations (mantenuto)
+// Logger per eventi di sicurezza
 const securityLogger = {
     logSecurityEvent: (event, details = {}) => {
         mainLogger.warn(`SECURITY: ${event}`, {
@@ -170,7 +170,7 @@ const securityLogger = {
     }
 };
 
-// Performance logger (mantenuto)
+// Performance logger
 const performanceLogger = {
     logDatabaseQuery: (query, duration, rowCount) => {
         mainLogger.debug('DATABASE_QUERY', {
@@ -223,6 +223,6 @@ module.exports = {
     blockchain: blockchainLogger,
     database: dbLogger,
 
-    // Factory function for context loggers
+    // Factory function per creare logger contestualizzati
     createContext: createContextLogger
 };

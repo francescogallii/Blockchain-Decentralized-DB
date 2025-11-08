@@ -9,25 +9,25 @@ const config = {
   REDIS_URL: process.env.REDIS_URL || 'redis://redis:6379',
   NODE_ENV: process.env.NODE_ENV || 'development',
   
-  // Security settings
+  // Impostazioni di sicurezza
   BCRYPT_ROUNDS: 12,
-  RATE_LIMIT_WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  RATE_LIMIT_WINDOW_MS: 15 * 60 * 1000, // 15 minuti
   RATE_LIMIT_MAX_REQUESTS: 100,
   
-  // Mining settings
+  // Impostazioni blockchain
   MAX_NONCE: Number.MAX_SAFE_INTEGER,
   GENESIS_HASH: '0'.repeat(64),
   
-  // Logging settings
+  // Impostazioni di logging
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   
-  // Validation settings
+  // Impostazioni validazione dati
   MAX_DATA_SIZE: 1024 * 1024, // 1MB
   MIN_NICKNAME_LENGTH: 3,
   MAX_NICKNAME_LENGTH: 255
 };
 
-// Validate configuration
+// Validazioni di configurazione
 if (config.DIFFICULTY < 1 || config.DIFFICULTY > 8) {
   throw new Error('DIFFICULTY must be between 1 and 8');
 }

@@ -2,17 +2,11 @@ import React from 'react';
 import { Routes, Route, NavLink } from 'react-router-dom';
 // Importa i componenti delle icone corretti da lucide-react
 import { LayoutDashboard, UserPlus, Blocks, Link, KeyRound } from 'lucide-react'; 
-
-// ******************************************************
-// IMPORT DEI COMPONENTI (ERA LA CAUSA DELL'ERRORE ReferenceError)
-// ******************************************************
 import Dashboard from './components/Dashboard.jsx';
 import CreatorRegistration from './components/CreatorRegistration.jsx';
 import BlockCreation from './components/BlockCreation.jsx';
 import BlockChain from './components/BlockChain.jsx';
 import DataDecryption from './components/DataDecryption.jsx';
-// ******************************************************
-
 
 const navLinkClasses = "flex items-center px-3 py-2 text-gray-700 rounded-md hover:bg-gray-200 transition-colors";
 const activeLinkClasses = "bg-blue-100 text-blue-700 font-semibold";
@@ -20,7 +14,6 @@ const activeLinkClasses = "bg-blue-100 text-blue-700 font-semibold";
 const navItems = [
     { path: "/", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5 mr-3" /> },
     { path: "/register", label: "Registra Creator", icon: <UserPlus className="h-5 w-5 mr-3" /> },
-    // Icona corretta: Blocks
     { path: "/create-block", label: "Crea Blocco", icon: <Blocks className="h-5 w-5 mr-3" /> }, 
     { path: "/blockchain", label: "Blockchain", icon: <Link className="h-5 w-5 mr-3" /> },
     { path: "/decrypt", label: "Decifra Dati", icon: <KeyRound className="h-5 w-5 mr-3" /> }
@@ -55,7 +48,6 @@ function App() {
         <div className="container mx-auto p-6">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            {/* I nomi dei componenti sono ora definiti grazie agli import sopra */}
             <Route path="/register" element={<CreatorRegistration />} />
             <Route path="/create-block" element={<BlockCreation />} />
             <Route path="/blockchain" element={<BlockChain />} />

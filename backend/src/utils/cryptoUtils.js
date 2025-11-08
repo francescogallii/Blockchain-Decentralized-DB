@@ -92,7 +92,7 @@ class CryptoUtils {
 	// Calculate SHA-256 hash
 	static calculateHash = (data) => crypto.createHash('sha256').update(data).digest('hex');
 
-	// Build the consistent input string for block hashing (fondamentale per l'integrità)
+	// Costruisce l'input per l'hash del blocco (fondamentale per l'integrità)
 	static buildHashInput(blockData) {
 		const createdAtISO = blockData.created_at instanceof Date ? blockData.created_at.toISOString() : blockData.created_at;
 

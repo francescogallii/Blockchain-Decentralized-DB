@@ -1,5 +1,3 @@
-# Percorso: ./backend/Dockerfile
-
 # Usa un'immagine Node.js coerente con il frontend
 FROM node:20-alpine
 

@@ -1,6 +1,4 @@
-// File: frontend/src/components/DataDecryption.jsx
 import React, { useState, useEffect } from 'react';
-// ** CORREZIONE: Aggiunto useQueryClient all'import **
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -10,8 +8,7 @@ import {
 import { apiCall } from '../utils/api';
 import cryptoUtils from '../utils/cryptoUtils';
 
-// --- Helper Components (InfoItem, SummaryCard, ActionButton, DecryptedBlockItem) ---
-// (Definizioni dei componenti helper - invariate rispetto alla versione precedente)
+
 const InfoItem = ({ icon: Icon, color, text }) => (
      <div className="flex items-center space-x-2">
          <Icon className={`h-4 w-4 ${color} flex-shrink-0`} />
@@ -103,7 +100,6 @@ const DataDecryption = () => {
     const [decryptionState, setDecryptionState] = useState({ status: 'idle' });
     const [publicKeyPem, setPublicKeyPem] = useState(null);
 
-    // ** CORREZIONE: useQueryClient() chiamato dopo l'import **
     const queryClient = useQueryClient();
 
     const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm();
@@ -231,7 +227,7 @@ const DataDecryption = () => {
     };
 
 
-    // --- Effect for Decryption Flow ---
+    // --- Effetto per processi di decrittazione ---
      useEffect(() => {
         const processDecryption = async () => {
             // Step 2: Verify Key
@@ -307,7 +303,6 @@ const DataDecryption = () => {
         };
 
         processDecryption();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [decryptionState.status, publicKeyPem, privateKeyPem]);
 
 

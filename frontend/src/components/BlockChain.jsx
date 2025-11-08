@@ -34,11 +34,11 @@ const BlockChain = () => {
     }`),
     {
       keepPreviousData: true,
-      refetchInterval: 30000, // Refresh every 30 seconds
+      refetchInterval: 30000, // Refetch ogni 30 secondi
     }
   );
 
-  // Filter blocks by search term
+  // Filtra i blocchi in base alla ricerca
   const filteredBlocks = blocksData?.blocks?.filter(block => {
     if (!searchTerm) return true;
     
@@ -51,7 +51,7 @@ const BlockChain = () => {
     );
   }) || [];
 
-  // Block detail component
+  // Componente per i dettagli del blocco espanso
   const BlockDetail = ({ block }) => (
     <div className="mt-4 p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

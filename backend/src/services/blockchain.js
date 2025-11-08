@@ -40,22 +40,21 @@ class Blockchain {
 
     // Funzione per aggiungere un blocco, sia esso creato localmente o ricevuto da P2P
     async addBlock(block) {
-
-        // Ensure block data is in Buffer format for DB insertion
-        // Handle cases where block comes from API (already Buffer) vs P2P (object { type: 'Buffer', data: [...] })
+        // Logica per convertire i campi necessari in Buffer
+        // Gestisce i casi in cui il blocco proviene da API (già Buffer) vs P2P (oggetto { type: 'Buffer', data: [...] })
         const blockToInsert = {
             ...block,
-            block_number: block.block_number?.toString(), // Ensure string for DB BigInt/Serial
-            nonce: block.nonce?.toString(),             // Ensure string for DB BigInt
+            block_number: block.block_number?.toString(), 
+            nonce: block.nonce?.toString(),             
             encrypted_data: block.encrypted_data?.data ? Buffer.from(block.encrypted_data.data) : Buffer.from(block.encrypted_data || []),
             data_iv: block.data_iv?.data ? Buffer.from(block.data_iv.data) : Buffer.from(block.data_iv || []),
             encrypted_data_key: block.encrypted_data_key?.data ? Buffer.from(block.encrypted_data_key.data) : Buffer.from(block.encrypted_data_key || []),
             signature: block.signature?.data ? Buffer.from(block.signature.data) : Buffer.from(block.signature || []),
-            // Ensure required fields have defaults or handle potential undefined values gracefully
-            previous_hash: block.previous_hash || null, // Allow null for genesis
+            // Gestione di campi opzionali con default
+            previous_hash: block.previous_hash || null, // Permetti null per genesis o mancante
             data_size: block.data_size || 0,
             mining_duration_ms: block.mining_duration_ms || null,
-            created_at: block.created_at || new Date(), // Use current time if missing
+            created_at: block.created_at || new Date(), // Usa data corrente se manca
             difficulty: block.difficulty || 0, // Aggiungi un default se manca
             creator_id: block.creator_id || null // Permetti null se manca
         };
@@ -88,22 +87,22 @@ class Blockchain {
 
             if (rowCount > 0) {
                 logger.info(`Block #${blockToInsert.block_number} (Hash: ...${blockToInsert.block_hash.slice(-6)}) inserted into DB.`);
-                // Ricarica la chain FROM DB *SOLO* dopo un inserimento riuscito
+                // Ricarica la chain FROM DB SOLO dopo un inserimento riuscito
                 await this.loadChainFromDB();
                 logger.info(`Local chain state updated. New length: ${this.chain.length}`);
-                return true; // Block successfully added
+                return true; // Blocco inserito con successo
             } else {
                 logger.info(`Block #${blockToInsert.block_number} (Hash: ...${blockToInsert.block_hash.slice(-6)}) already exists in DB (ON CONFLICT). No action taken.`);
                 // Optional: Se il blocco non è in memoria ma è nel DB, ricarica per coerenza
                 const existsInMemory = this.chain.some(b => b.block_hash === blockToInsert.block_hash);
                 if (!existsInMemory) {
                     logger.warn(`Block #${blockToInsert.block_number} exists in DB but not in memory. Reloading chain.`);
-                    await this.loadChainFromDB(); // Reload if DB and memory are inconsistent
+                    await this.loadChainFromDB(); // Ricarica la catena se necessario
                 }
-                return false; // Block already existed
+                return false; // Blocco già esistente
             }
         } catch (error) {
-            // Log detailed error, including potential constraint violations
+            // Migliora il log degli errori DB
             logger.error(`Failed to add block #${blockToInsert.block_number} to DB`, {
                  error: error.message,
                  code: error.code, // PostgreSQL error code (e.g., '23505' for unique violation if ON CONFLICT fails)
